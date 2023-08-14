@@ -1,108 +1,53 @@
-import { component$ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
-
-import Counter from "~/components/starter/counter/counter";
-import Hero from "~/components/starter/hero/hero";
-import Infobox from "~/components/starter/infobox/infobox";
-import Starter from "~/components/starter/next-steps/next-steps";
+import { $, component$, useSignal } from "@builder.io/qwik";
+import { type DocumentHead, useNavigate } from "@builder.io/qwik-city";
+import { PokemonImage } from "~/components/shared/pokemons/pokemon-image";
 
 export default component$(() => {
+
+  const pokemonId = useSignal(1); // for primitive data types
+  // const pokemonId2 = useStore(); // for data types more complex (e.g. array, object, etc).
+
+  const toBack = useSignal(false);
+
+  const isVisible = useSignal(false);
+
+
+  const changePokemonId = $((value: number) => {
+    if ((pokemonId.value + value) <= 0) return;
+    pokemonId.value += value;
+  });
+
+  const nav = useNavigate();
+
   return (
     <>
-      <Hero />
-      <Starter />
+      <span class="text-2xl">Buscador Simple</span>
 
-      <div role="presentation" class="ellipsis"></div>
-      <div role="presentation" class="ellipsis ellipsis-purple"></div>
+      <span class="text-9xl">{pokemonId.value}</span>
 
-      <div class="container container-center container-spacing-xl">
-        <h3>
-          You can <span class="highlight">count</span>
-          <br /> on me
-        </h3>
-        <Counter />
+      {/* <Link href={`/poke/${pokemonId.value}/`}>
+        <PokemonImage id={pokemonId.value} width={300} height={300} toBack={toBack.value} isVisible={isVisible.value}></PokemonImage>
+      </Link> */}
+
+      
+      <div onClick$={async () => {
+       await nav(`/poke/${pokemonId.value}/`);  
+      }}>
+      <PokemonImage id={pokemonId.value} width={300} height={300} toBack={toBack.value} isVisible={isVisible.value}></PokemonImage>
       </div>
 
-      <div class="container container-flex">
-        <Infobox>
-          <div q:slot="title" class="icon icon-cli">
-            CLI Commands
-          </div>
-          <>
-            <p>
-              <code>npm run dev</code>
-              <br />
-              Starts the development server and watches for changes
-            </p>
-            <p>
-              <code>npm run preview</code>
-              <br />
-              Creates production build and starts a server to preview it
-            </p>
-            <p>
-              <code>npm run build</code>
-              <br />
-              Creates production build
-            </p>
-            <p>
-              <code>npm run qwik add</code>
-              <br />
-              Runs the qwik CLI to add integrations
-            </p>
-          </>
-        </Infobox>
-
-        <div>
-          <Infobox>
-            <div q:slot="title" class="icon icon-apps">
-              Example Apps
-            </div>
-            <p>
-              Have a look at the <a href="/demo/flower">Flower App</a> or the{" "}
-              <a href="/demo/todolist">Todo App</a>.
-            </p>
-          </Infobox>
-
-          <Infobox>
-            <div q:slot="title" class="icon icon-community">
-              Community
-            </div>
-            <ul>
-              <li>
-                <span>Questions or just want to say hi? </span>
-                <a href="https://qwik.builder.io/chat" target="_blank">
-                  Chat on discord!
-                </a>
-              </li>
-              <li>
-                <span>Follow </span>
-                <a href="https://twitter.com/QwikDev" target="_blank">
-                  @QwikDev
-                </a>
-                <span> on Twitter</span>
-              </li>
-              <li>
-                <span>Open issues and contribute on </span>
-                <a href="https://github.com/BuilderIO/qwik" target="_blank">
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <span>Watch </span>
-                <a href="https://qwik.builder.io/media/" target="_blank">
-                  Presentations, Podcasts, Videos, etc.
-                </a>
-              </li>
-            </ul>
-          </Infobox>
-        </div>
+      <div class="mt-2">
+        <button onClick$={ () => changePokemonId(-1) } class="btn btn-primary mr-2">Anterior</button>
+        <button onClick$={() => changePokemonId(+1)} class="btn btn-primary mr-2">Siguente</button>
+        <button onClick$={() => toBack.value = !toBack.value} class="btn btn-primary mr-2">Voltear</button>
+        <button onClick$={ () => isVisible.value = !isVisible.value } class="btn btn-primary ">Revelar/Ocultar</button>
       </div>
     </>
   );
 });
 
 export const head: DocumentHead = {
-  title: "Welcome to Qwik",
+  title: "My App",
   meta: [
     {
       name: "description",
