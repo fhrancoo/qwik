@@ -3,6 +3,10 @@ import { type SmallPokemon } from "~/interfaces/small-pokemon";
 
 export const getSmallPokemons = async (offset: number = 0, limit: number = 10): Promise<SmallPokemon[]> => {
 
+  if ( offset < 0 ) offset = 0;
+  if ( limit < 0 ) limit = 10;
+
+
   let response: SmallPokemon[] = [];
   try {
     console.log(`🔹 fetch to: https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`);
