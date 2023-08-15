@@ -4,17 +4,14 @@ import { getSmallPokemons } from '~/helpers/getSmallPokemons';
 import { type SmallPokemon } from '~/interfaces/small-pokemon';
 
 
-export const usePokemonList = routeLoader$<SmallPokemon[]>(async ({ query }) => {
-  console.log('🔸 query: ', query);
+export const usePokemonList = routeLoader$<SmallPokemon[]>(async ({ query, redirect }) => {
 
-  const offset = query.get('offset');
-  console.log(' 🟨 offset: ', offset);
-
-  if (offset) {
-    typeof offset;
-    console.log('🟨 typeof offset: ', typeof offset);
+  const offset = query.get('offset') ? +query.get('offset')! : 0;
+  if( offset < 0 )  {
+    throw redirect(302, `/pokemons/list-ssr?offset=0`);
   }
-  return await getSmallPokemons(+(offset ?? 0));
+
+  return await getSmallPokemons( offset );
 })
 
 export default component$(() => {
@@ -23,12 +20,8 @@ export default component$(() => {
   const location = useLocation();
 
   const currenOffset = useComputed$<number>(() => {
-    // const res = location.url.searchParams.get('offset');
 
-    const offset = new URLSearchParams(location.url.search);
-    console.log('currenOffset -> offset: ', offset);
-
-    console.log(+( offset.get('offset') ?? '0'));
+    const offset = new URLSearchParams(location.url.search);    
     return +( offset.get('offset') ?? '0');
   })
 
@@ -41,10 +34,10 @@ export default component$(() => {
       </div>
       
       <div class="mt-10">
-        <Link class="btn btn-primary mr-2" href={`/pokemons/list-ssr?offset=${ (currenOffset.value - 10) }`}>
+        <Link class="btn btn-primary mr-2" reload prefetch href={`/pokemons/list-ssr?offset=${ (currenOffset.value - 10) }`}>
           ANTERIORES
         </Link>
-        <Link class="btn btn-primary mr-2" href={`/pokemons/list-ssr?offset=${ (currenOffset.value + 10) }`}>
+        <Link class="btn btn-primary mr-2" reload prefetch  href={`/pokemons/list-ssr?offset=${ (currenOffset.value + 10) }`}>
           SIGUIENTES
         </Link>
       </div>
